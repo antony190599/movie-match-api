@@ -1,25 +1,28 @@
-const http = require('http');
-const { getRandomMovie } = require('./movieUtils');
+const express = require('express');
+const {
+  getRandomMovieController,
+  getAllMoviesController,
+  getMovieByIdOrNameController,
+} = require('./controllers/movieController');
 
-const server = http.createServer((req, res) => {
-  if (req.url === '/') {
-    getRandomMovie((err, movie) => {
-      if (err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Error retrieving movie');
-        return;
-      }
+const app = express();
+const PORT = 3000;
 
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(movie));
-    });
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not Found');
-  }
+// Ruta para obtener una película aleatoria
+app.get('/', getRandomMovieController);
+
+// Ruta para obtener todas las películas (con filtro opcional por género)
+app.get('/movies', getAllMoviesController);
+
+// Ruta para obtener una película por ID o nombre
+app.get('/movies/:idOrName', getMovieByIdOrNameController);
+
+// Ruta para manejar rutas no encontradas
+app.use((req, res) => {
+  res.status(404).send('Not Found');
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
+// Iniciar el servidor
+app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

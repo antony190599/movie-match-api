@@ -47,4 +47,51 @@ function getRandomMovie(callback) {
   });
 }
 
-module.exports = { getMovieByTitle, getRandomMovie };
+
+function getAllMovies(callback) {
+  const csvFilePath = path.join(__dirname, 'data', 'movies.csv');
+
+  fs.readFile(csvFilePath, 'utf8', (err, data) => {
+    if (err) {
+      return callback(err);
+    }
+
+    parse(data, { columns: true, trim: true }, (err, movies) => {
+      if (err) {
+        return callback(err);
+      }
+
+      callback(null, movies);
+    });
+  });
+}
+
+function getMovieByIdOrName(idOrName, callback) {
+  const csvFilePath = path.join(__dirname, 'data', 'movies.csv');
+
+  fs.readFile(csvFilePath, 'utf8', (err, data) => {
+    if (err) {
+      return callback(err);
+    }
+
+    parse(data, { columns: true, trim: true }, (err, movies) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const movie = movies.find(
+        (movie) =>
+          movie.id.toLowerCase() === idOrName.toLowerCase() ||
+          movie.title.toLowerCase() === idOrName.toLowerCase()
+      );
+
+      if (!movie) {
+        return callback(new Error('Movie not found.'));
+      }
+
+      callback(null, movie);
+    });
+  });
+}
+
+module.exports = { getMovieByTitle, getRandomMovie, getAllMovies, getMovieByIdOrName };
