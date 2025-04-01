@@ -1,49 +1,60 @@
-const { getRandomMovie, getAllMovies, getMovieByIdOrName } = require('../movieUtils');
+import {
+  getRandomMovie,
+  getMovies,
+  findMovieByIdOrName,
+} from '../services/movieService.js';
 
-// Controlador para obtener una película aleatoria
-const getRandomMovieController = (req, res) => {
-  getRandomMovie((err, movie) => {
-    if (err) {
-      return res.status(500).send('Error retrieving movie');
-    }
+export const getRandomMovieController = async (req, res) => {
+  try {
+    const movie = await getRandomMovie();
     res.json(movie);
-  });
+  } catch (err) {
+    res.status(500).send('Error retrieving movie');
+  }
 };
 
-// Controlador para obtener todas las películas (con filtro opcional por género)
-const getAllMoviesController = (req, res) => {
-  const genre = req.query.genre;
+export const getAllMoviesController = async (req, res) => {
+  try {
+    const { genre, name, year } = req.query;
+    let movies = await getMovies();
 
-  getAllMovies((err, movies) => {
-    if (err) {
-      return res.status(500).send('Error retrieving movies');
-    }
-
-    let filteredMovies = movies;
     if (genre) {
-      filteredMovies = movies.filter((movie) =>
+      movies = movies.filter(movie =>
         movie.genre.toLowerCase().includes(genre.toLowerCase())
       );
     }
 
-    res.json(filteredMovies);
-  });
-};
-
-// Controlador para obtener una película por ID o nombre
-const getMovieByIdOrNameController = (req, res) => {
-  const idOrName = req.params.idOrName;
-
-  getMovieByIdOrName(idOrName, (err, movie) => {
-    if (err) {
-      return res.status(404).send('Movie not found');
+    if (name) {
+      movies = movies.filter(movie =>
+        movie.title.toLowerCase().includes(name.toLowerCase())
+      );
     }
-    res.json(movie);
-  });
+
+    if (year) {
+      movies = movies.filter(movie => movie.year === year);
+    }
+
+    if (movies.length === 0) {
+      return res.status(404).json({ error: "No se encontraron resultados para la búsqueda." });
+    }
+
+    res.json(movies);
+  } catch (err) {
+    res.status(500).send('Error retrieving movies');
+  }
 };
 
-module.exports = {
-  getRandomMovieController,
-  getAllMoviesController,
-  getMovieByIdOrNameController,
+export const getMovieByIdOrNameController = async (req, res) => {
+  try {
+    const idOrName = req.params.idOrName;
+    const movie = await findMovieByIdOrName(idOrName);
+
+    if (!movie) {
+      return res.status(404).json({ error: "No se encontraron resultados para la búsqueda." });
+    }
+
+    res.json(movie);
+  } catch (err) {
+    res.status(500).send('Error retrieving movie');
+  }
 };

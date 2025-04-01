@@ -1,4 +1,4 @@
-const { getMovieByTitle } = require('./movieUtils');
+import { getMovieByTitle } from './movieUtils.js';
 
 // Get the movie title from command line arguments
 const movieTitle = process.argv[2];
