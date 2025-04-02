@@ -1,5 +1,6 @@
 import express from 'express';
 import movieRoutes from './routes/movieRoutes.js';
+import { getMovies } from './services/movieService.js';
 
 const app = express();
 const PORT = 3000;
@@ -14,11 +15,18 @@ app.use((req, res) => {
 
 // Middleware para manejo centralizado de errores
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Ocurrió un error en el servidor." });
+  console.error(`Unhandled error: ${err.message}`);
+  const status = err.status || 500;
+  res.status(status).json({ error: err.message || 'An unexpected error occurred on the server.' });
 });
 
 // Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, async () => {
+  try {
+    const movies = await getMovies();
+    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Loaded ${movies.length} movies.`);
+  } catch (err) {
+    console.error(`Failed to load movies: ${err.message}`);
+  }
 });

@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse';
+import { fileURLToPath } from 'url';
 
-const csvFilePath = path.join(path.dirname(import.meta.url), '../data/movies.csv');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const csvFilePath = path.join(__dirname, '../data/movies.csv');
 
 class Movie {
   constructor({ id, title, year, genre, director, actors, plot, imdb_rating, runtime_minutes }) {
@@ -22,12 +25,14 @@ export function getMovies() {
   return new Promise((resolve, reject) => {
     fs.readFile(csvFilePath, 'utf8', (err, data) => {
       if (err) {
-        return reject(err);
+        console.error(`Error reading CSV file: ${err.message}`);
+        return reject(new Error('Failed to load movies data.'));
       }
 
       parse(data, { columns: true, trim: true }, (err, movies) => {
         if (err) {
-          return reject(err);
+          console.error(`Error parsing CSV data: ${err.message}`);
+          return reject(new Error('Failed to parse movies data.'));
         }
         resolve(movies.map(movie => new Movie(movie)));
       });

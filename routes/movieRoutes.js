@@ -3,6 +3,7 @@ import {
   getRandomMovieController,
   getAllMoviesController,
   getMovieByIdOrNameController,
+  getMovieRecommendationsController,
 } from '../controllers/movieController.js';
 
 const router = express.Router();
@@ -15,5 +16,8 @@ router.get('/movies', getAllMoviesController);
 
 // Ruta para obtener una película por ID o nombre
 router.get('/movies/:idOrName', getMovieByIdOrNameController);
+
+// Ruta para obtener recomendaciones basadas en género
+router.get('/movies/:idOrName/recommendations', getMovieRecommendationsController);
 
 export default router;

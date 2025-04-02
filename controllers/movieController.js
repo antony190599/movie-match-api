@@ -9,11 +9,12 @@ export const getRandomMovieController = async (req, res) => {
     const movie = await getRandomMovie();
     res.json(movie);
   } catch (err) {
-    res.status(500).send('Error retrieving movie');
+    console.error(`Error in getRandomMovieController: ${err.message}`);
+    res.status(500).json({ error: 'Failed to retrieve a random movie.' });
   }
 };
 
-export const getAllMoviesController = async (req, res) => {
+export const getAllMoviesController = async (req, res, next) => {
   try {
     const { genre, name, year } = req.query;
     let movies = await getMovies();
@@ -35,26 +36,55 @@ export const getAllMoviesController = async (req, res) => {
     }
 
     if (movies.length === 0) {
-      return res.status(404).json({ error: "No se encontraron resultados para la búsqueda." });
+      const error = new Error("No se encontraron resultados para la búsqueda.");
+      error.status = 404;
+      throw error;
     }
 
     res.json(movies);
   } catch (err) {
-    res.status(500).send('Error retrieving movies');
+    next(err); // Delegar al middleware de errores
   }
 };
 
-export const getMovieByIdOrNameController = async (req, res) => {
+export const getMovieByIdOrNameController = async (req, res, next) => {
   try {
     const idOrName = req.params.idOrName;
     const movie = await findMovieByIdOrName(idOrName);
 
     if (!movie) {
-      return res.status(404).json({ error: "No se encontraron resultados para la búsqueda." });
+      const error = new Error("No se encontraron resultados para la búsqueda.");
+      error.status = 404;
+      throw error;
     }
 
     res.json(movie);
   } catch (err) {
-    res.status(500).send('Error retrieving movie');
+    next(err); // Delegar al middleware de errores
+  }
+};
+
+export const getMovieRecommendationsController = async (req, res, next) => {
+  try {
+    const idOrName = req.params.idOrName;
+    const movie = await findMovieByIdOrName(idOrName);
+
+    if (!movie) {
+      const error = new Error("No se encontraron resultados para la búsqueda.");
+      error.status = 404;
+      throw error;
+    }
+
+    const allMovies = await getMovies();
+    const recommendations = allMovies.filter(
+      m => m.genre.toLowerCase().includes(movie.genre.toLowerCase()) && m.id !== movie.id
+    );
+
+    res.json({
+      movie,
+      recommendations: recommendations.slice(0, 5), // Limit to 5 recommendations
+    });
+  } catch (err) {
+    next(err); // Delegar al middleware de errores
   }
 };
