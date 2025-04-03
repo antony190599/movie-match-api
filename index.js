@@ -1,9 +1,21 @@
 import express from 'express';
-import movieRoutes from './routes/movieRoutes.js';
+import movieRoutes from './routes/moviesRoutes.js';
 import { getMovies } from './services/movieService.js';
+import { loggingMiddleware } from './middlewares/logger.js';
+import { corsMiddleware } from './middlewares/cors.js';
+import { errorMiddleware } from './middlewares/errorHandler.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './docs/swagger.yaml';
 
 const app = express();
 const PORT = 3000;
+
+// Middlewares
+app.use(loggingMiddleware);
+app.use(corsMiddleware);
+
+// Swagger documentation route
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Montar las rutas
 app.use('/', movieRoutes);
@@ -14,11 +26,7 @@ app.use((req, res) => {
 });
 
 // Middleware para manejo centralizado de errores
-app.use((err, req, res, next) => {
-  console.error(`Unhandled error: ${err.message}`);
-  const status = err.status || 500;
-  res.status(status).json({ error: err.message || 'An unexpected error occurred on the server.' });
-});
+app.use(errorMiddleware);
 
 // Iniciar el servidor
 app.listen(PORT, async () => {

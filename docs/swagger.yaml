@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  title: Movie Match API
+  version: 1.0.0
+  description: API documentation for Movie Match
+servers:
+  - url: http://localhost:3000
+    description: Local server
+paths:
+  /:
+    get:
+      summary: Get a random movie
+      responses:
+        '200':
+          description: A random movie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+  /movies:
+    get:
+      summary: Get all movies
+      parameters:
+        - name: genre
+          in: query
+          description: Filter by genre
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter by name
+          required: false
+          schema:
+            type: string
+        - name: year
+          in: query
+          description: Filter by year
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+        '404':
+          description: No movies found
+  /movies/{idOrName}:
+    get:
+      summary: Get a movie by ID or name
+      parameters:
+        - name: idOrName
+          in: path
+          description: The ID or name of the movie to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A movie object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the movie
+        title:
+          type: string
+          description: The title of the movie
+        year:
+          type: integer
+          description: The release year of the movie
+        genre:
+          type: string
+          description: The genre(s) of the movie
+        director:
+          type: string
+          description: The director of the movie
+        actors:
+          type: string
+          description: The main actors in the movie
+        plot:
+          type: string
+          description: A brief summary of the movie's plot
+        imdbRating:
+          type: number
+          format: float
+          description: The IMDb rating of the movie
+        runtimeMinutes:
+          type: integer
+          description: The runtime of the movie in minutes
