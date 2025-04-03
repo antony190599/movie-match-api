@@ -1,11 +1,14 @@
 import express from 'express';
-import movieRoutes from './routes/moviesRoutes.js';
+import movieRoutes from './routes/movieRoutes.js';
 import { getMovies } from './services/movieService.js';
-import { loggingMiddleware } from './middlewares/logger.js';
-import { corsMiddleware } from './middlewares/cors.js';
+import { loggingMiddleware } from './middlewares/loggingMiddleware.js';
+import { corsMiddleware } from './middlewares/corsMiddleware.js';
 import { errorMiddleware } from './middlewares/errorHandler.js';
+import YAML from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from './docs/swagger.yaml';
+
+// Load the Swagger YAML file from the /docs folder
+const swaggerDocument = YAML.load('./docs/swagger.yaml');
 
 const app = express();
 const PORT = 3000;
