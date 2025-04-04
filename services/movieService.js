@@ -54,3 +54,70 @@ export async function getRandomMovie() {
   const randomIndex = Math.floor(Math.random() * movies.length);
   return movies[randomIndex];
 }
+
+export async function getPaginatedMovies(cursor, limit = 10, filters = {}) {
+  console.log('Valor de limit recibido en getPaginatedMovies:', limit); // Agregar console.log
+  // Get all movies
+  let movies = await getMovies();
+  
+  // Apply filters if provided
+  if (filters.genre) {
+    movies = movies.filter(movie => 
+      movie.genre.toLowerCase().includes(filters.genre.toLowerCase())
+    );
+  }
+  
+  if (filters.name) {
+    movies = movies.filter(movie => 
+      movie.title.toLowerCase().includes(filters.name.toLowerCase())
+    );
+  }
+  
+  if (filters.year) {
+    movies = movies.filter(movie => 
+      movie.year === parseInt(filters.year, 10)
+    );
+  }
+  
+  // Find the starting position based on cursor
+  let startIndex = 0;
+  console.log('limit:', limit);
+  if (cursor) {
+    try {
+      const [cursorId, encodedName] = cursor.split(':');
+      const cursorName = decodeURIComponent(encodedName || '');
+      
+      // Find the index of the movie after the cursor
+      const cursorIndex = movies.findIndex(movie => 
+        movie.id === cursorId || movie.title === cursorName
+      );
+      
+      // If the cursor is valid, start from the next item
+      if (cursorIndex !== -1) {
+        startIndex = cursorIndex + 1;
+      }
+    } catch (error) {
+      console.error('Error parsing cursor:', error);
+      // If cursor is invalid, start from the beginning
+    }
+  }
+  
+  // Get paginated results
+  const endIndex = startIndex + limit;
+  const paginatedMovies = movies.slice(startIndex, endIndex);
+  
+  // Determine if there are more results
+  const hasMore = endIndex < movies.length;
+  
+  // Create next cursor if there are more results
+  let nextCursor = null;
+  if (hasMore && movies[endIndex]) {
+    nextCursor = `${movies[endIndex].id}:${encodeURIComponent(movies[endIndex].title)}`;
+  }
+  
+  return {
+    movies: paginatedMovies,
+    nextCursor,
+    hasMore
+  };
+}

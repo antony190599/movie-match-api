@@ -1,8 +1,21 @@
-export const requestValidationMiddleware = (req, res, next) => {
-  if (req.method === 'POST' || req.method === 'PUT') {
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ error: 'Bad Request: Request body is required.' });
+import { validationResult } from 'express-validator';
+
+
+export const validate = (validations) => {
+  return async (req, res, next) => {
+    // Run all validations
+    await Promise.all(validations.map(validation => validation.run(req)));
+    
+    // Check if there are validation errors
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      return next();
     }
-  }
-  next();
+    
+    // Return validation errors
+    return res.status(400).json({
+      error: 'Validation Error',
+      details: errors.array()
+    });
+  };
 };

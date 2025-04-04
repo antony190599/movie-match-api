@@ -5,7 +5,7 @@ import { loggingMiddleware } from './middlewares/loggingMiddleware.js';
 import { corsMiddleware } from './middlewares/corsMiddleware.js';
 import { errorMiddleware } from './middlewares/errorHandler.js';
 import { authMiddleware } from './middlewares/authMiddleware.js';
-import { requestValidationMiddleware } from './middlewares/requestValidationMiddleware.js';
+import { validate as requestValidationMiddleware } from './middlewares/requestValidationMiddleware.js';
 import YAML from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
 
@@ -22,7 +22,6 @@ const PORT = 3000;
 app.use(loggingMiddleware);
 app.use(corsMiddleware);
 app.use(express.json()); // Ensure JSON body parsing
-app.use(requestValidationMiddleware); // Add request validation middleware
 
 // Apply authentication middleware to all routes
 app.use(authMiddleware);
