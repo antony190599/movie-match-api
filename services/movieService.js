@@ -21,7 +21,7 @@ class Movie {
   }
 }
 
-export function getMovies() {
+export async function getMovies() {
   return new Promise((resolve, reject) => {
     fs.readFile(csvFilePath, 'utf8', (err, data) => {
       if (err) {

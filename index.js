@@ -4,8 +4,13 @@ import { getMovies } from './services/movieService.js';
 import { loggingMiddleware } from './middlewares/loggingMiddleware.js';
 import { corsMiddleware } from './middlewares/corsMiddleware.js';
 import { errorMiddleware } from './middlewares/errorHandler.js';
+import { authMiddleware } from './middlewares/authMiddleware.js';
+import { requestValidationMiddleware } from './middlewares/requestValidationMiddleware.js';
 import YAML from 'yamljs';
 import swaggerUi from 'swagger-ui-express';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Load the Swagger YAML file from the /docs folder
 const swaggerDocument = YAML.load('./docs/swagger.yaml');
@@ -16,6 +21,11 @@ const PORT = 3000;
 // Middlewares
 app.use(loggingMiddleware);
 app.use(corsMiddleware);
+app.use(express.json()); // Ensure JSON body parsing
+app.use(requestValidationMiddleware); // Add request validation middleware
+
+// Apply authentication middleware to all routes
+app.use(authMiddleware);
 
 // Swagger documentation route
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

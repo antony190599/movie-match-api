@@ -88,3 +88,54 @@ export const getMovieRecommendationsController = async (req, res, next) => {
     next(err); // Delegar al middleware de errores
   }
 };
+
+export const getPaginatedMoviesController = async (req, res, next) => {
+  try {
+    const { cursor, limit = 10 } = req.query;
+
+    // Validate limit
+    const parsedLimit = parseInt(limit, 10);
+    if (isNaN(parsedLimit) || parsedLimit <= 0) {
+      return res.status(400).json({ error: 'Invalid limit parameter. Must be a positive integer.' });
+    }
+
+    // Decode cursor
+    let startIndex = 0;
+    if (cursor) {
+      const [cursorId, cursorTitle] = cursor.split(':');
+      if (!cursorId || !cursorTitle) {
+        return res.status(400).json({ error: 'Invalid cursor format. Expected "id:movie_name".' });
+      }
+
+      const movies = await getMovies();
+      startIndex = movies.findIndex(
+        movie => movie.id === cursorId && movie.title === cursorTitle
+      );
+
+      if (startIndex === -1) {
+        return res.status(400).json({ error: 'Invalid cursor. Movie not found.' });
+      }
+
+      startIndex += 1; // Start after the cursor
+    }
+
+    // Load movies and apply pagination
+    const movies = await getMovies();
+    const paginatedMovies = movies.slice(startIndex, startIndex + parsedLimit);
+
+    // Determine nextCursor and hasMore
+    const hasMore = startIndex + parsedLimit < movies.length;
+    const nextCursor = hasMore
+      ? `${paginatedMovies[paginatedMovies.length - 1].id}:${paginatedMovies[paginatedMovies.length - 1].title}`
+      : null;
+
+    // Respond with paginated data
+    res.json({
+      shows: paginatedMovies,
+      nextCursor,
+      hasMore,
+    });
+  } catch (err) {
+    next(err); // Delegate to error middleware
+  }
+};

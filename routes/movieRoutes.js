@@ -4,6 +4,7 @@ import {
   getAllMoviesController,
   getMovieByIdOrNameController,
   getMovieRecommendationsController,
+  getPaginatedMoviesController,
 } from '../controllers/movieController.js';
 
 const router = express.Router();
@@ -12,7 +13,7 @@ const router = express.Router();
 router.get('/', getRandomMovieController);
 
 // Ruta para obtener todas las películas (con filtro opcional por género)
-router.get('/movies', getAllMoviesController);
+router.get('/movies', getPaginatedMoviesController);
 
 // Ruta para obtener una película por ID o nombre
 router.get('/movies/:idOrName', getMovieByIdOrNameController);
