@@ -56,7 +56,7 @@ export async function getRandomMovie() {
 }
 
 export async function getPaginatedMovies(cursor, limit = 10, filters = {}) {
-  console.log('Valor de limit recibido en getPaginatedMovies:', limit); // Agregar console.log
+  
   // Get all movies
   let movies = await getMovies();
   
@@ -84,13 +84,13 @@ export async function getPaginatedMovies(cursor, limit = 10, filters = {}) {
   console.log('limit:', limit);
   if (cursor) {
     try {
-      const [cursorId, encodedName] = cursor.split(':');
-      const cursorName = decodeURIComponent(encodedName || '');
       
       // Find the index of the movie after the cursor
       const cursorIndex = movies.findIndex(movie => 
-        movie.id === cursorId || movie.title === cursorName
+        movie.id === cursor
       );
+
+      console.log('cursorIndex:', cursorIndex);
       
       // If the cursor is valid, start from the next item
       if (cursorIndex !== -1) {
@@ -103,8 +103,9 @@ export async function getPaginatedMovies(cursor, limit = 10, filters = {}) {
   }
   
   // Get paginated results
-  const endIndex = startIndex + limit;
+  const endIndex = startIndex + limit - 1;
   const paginatedMovies = movies.slice(startIndex, endIndex);
+  console.log(startIndex, endIndex, paginatedMovies.length);
   
   // Determine if there are more results
   const hasMore = endIndex < movies.length;
@@ -112,7 +113,7 @@ export async function getPaginatedMovies(cursor, limit = 10, filters = {}) {
   // Create next cursor if there are more results
   let nextCursor = null;
   if (hasMore && movies[endIndex]) {
-    nextCursor = `${movies[endIndex].id}:${encodeURIComponent(movies[endIndex].title)}`;
+    nextCursor = `${movies[endIndex].id}`;
   }
   
   return {

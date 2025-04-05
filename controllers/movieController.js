@@ -93,7 +93,7 @@ export const getMovieRecommendationsController = async (req, res, next) => {
 export const getPaginatedMoviesController = async (req, res, next) => {
   try {
     const { cursor, limit = 10 } = req.query;
-    console.log('valor de limit en req.query:', limit);
+    
 
     // Validate limit
     const parsedLimit = parseInt(limit, 10);
@@ -103,42 +103,14 @@ export const getPaginatedMoviesController = async (req, res, next) => {
 
     // Decode cursor
     let startIndex = 0;
-    if (cursor) {
-      const [cursorId, cursorTitle] = cursor.split(':');
-      if (!cursorId || !cursorTitle) {
-        return res.status(400).json({ error: 'Invalid cursor format. Expected "id:movie_name".' });
-      }
-
-      const { movies } = await getPaginatedMovies(cursor, parsedLimit, {
-        genre: req.query.genre ?? null,
-        name: req.query.name ?? null,
-        year: req.query.year ?? null,
-      });
-      startIndex = movies.findIndex(
-        movie => movie.id === cursorId && movie.title === cursorTitle
-      );
-
-      if (startIndex === -1) {
-        return res.status(400).json({ error: 'Invalid cursor. Movie not found.' });
-      }
-
-      startIndex += 1; // Start after the cursor
-    }
-    console.log(parsedLimit)
     // Load movies and apply pagination
-    const { movies, hasMore, nextCursor } = await getPaginatedMovies(null, parsedLimit, {
+    const { movies, hasMore, nextCursor } = await getPaginatedMovies(cursor, parsedLimit, {
       genre: req.query.genre ?? null,
       name: req.query.name ?? null,
       year: req.query.year ?? null,
     });
-    console.log(movies.length);
     const paginatedMovies = movies.slice(startIndex, startIndex + parsedLimit);
 
-    // Determine nextCursor and hasMore
-    //const hasMore = startIndex + parsedLimit < movies.length;
-    // const nextCursor = hasMore
-    //   ? `${paginatedMovies[paginatedMovies.length - 1].id}:${paginatedMovies[paginatedMovies.length - 1].title}`
-    //   : null;
 
     // Respond with paginated data
     res.json({

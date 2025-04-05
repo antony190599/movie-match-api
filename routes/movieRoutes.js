@@ -6,19 +6,24 @@ import {
   getMovieRecommendationsController,
   getPaginatedMoviesController,
 } from '../controllers/movieController.js';
+import { validate } from '../middlewares/requestValidationMiddleware.js';
+import { 
+  validateIdOrName, 
+  validatePagination 
+} from '../validators/movieValidators.js';
 
 const router = express.Router();
 
-// Ruta para obtener una película aleatoria
+// Route to get a random movie
 router.get('/', getRandomMovieController);
 
-// Ruta para obtener todas las películas (con filtro opcional por género)
-router.get('/movies', getPaginatedMoviesController);
+// Route to get paginated movies with optional filters
+router.get('/movies', validate(validatePagination), getPaginatedMoviesController);
 
-// Ruta para obtener una película por ID o nombre
-router.get('/movies/:idOrName', getMovieByIdOrNameController);
+// Route to get a movie by ID or name
+router.get('/movies/:idOrName', validate(validateIdOrName), getMovieByIdOrNameController);
 
-// Ruta para obtener recomendaciones basadas en género
-router.get('/movies/:idOrName/recommendations', getMovieRecommendationsController);
+// Route to get recommendations based on genre
+router.get('/movies/:idOrName/recommendations', validate(validateIdOrName), getMovieRecommendationsController);
 
 export default router;
