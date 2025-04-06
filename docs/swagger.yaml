@@ -12,9 +12,10 @@ paths:
   /:
     get:
       summary: Get a random movie
+      description: Retrieve a random movie from the database.
       responses:
         '200':
-          description: A random movie
+          description: A random movie object.
           content:
             application/json:
               schema:
@@ -22,28 +23,37 @@ paths:
   /movies:
     get:
       summary: Get all movies
+      description: Retrieve a list of movies with optional filters for genre, name, and year.
       parameters:
         - name: genre
           in: query
-          description: Filter by genre
+          description: Filter movies by genre (e.g., "Drama").
           required: false
           schema:
             type: string
         - name: name
           in: query
-          description: Filter by name
+          description: Filter movies by name or title (e.g., "Inception").
           required: false
           schema:
             type: string
         - name: year
           in: query
-          description: Filter by year
+          description: Filter movies by release year (e.g., 1994).
           required: false
           schema:
             type: integer
+        - name: limit
+          in: query
+          description: Limit the number of movies returned (default is 10).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
       responses:
         '200':
-          description: List of movies
+          description: A list of movies matching the filters.
           content:
             application/json:
               schema:
@@ -51,26 +61,54 @@ paths:
                 items:
                   $ref: '#/components/schemas/Movie'
         '404':
-          description: No movies found
+          description: No movies found matching the filters.
   /movies/{idOrName}:
     get:
       summary: Get a movie by ID or name
+      description: Retrieve a specific movie by its unique ID or name.
       parameters:
         - name: idOrName
           in: path
-          description: The ID or name of the movie to retrieve
+          description: The unique ID or name of the movie to retrieve.
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: A movie object
+          description: The movie object matching the ID or name.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie'
         '404':
-          description: Movie not found
+          description: Movie not found with the given ID or name.
+  /movies/{idOrName}/recommendations:
+    get:
+      summary: Get movie recommendations
+      description: Retrieve a list of recommended movies based on the genre of the specified movie.
+      parameters:
+        - name: idOrName
+          in: path
+          description: The unique ID or name of the movie to base recommendations on.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of recommended movies.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  movie:
+                    $ref: '#/components/schemas/Movie'
+                  recommendations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found with the given ID or name.
 components:
   schemas:
     Movie:
@@ -78,29 +116,29 @@ components:
       properties:
         id:
           type: string
-          description: The unique identifier of the movie
+          description: The unique identifier of the movie.
         title:
           type: string
-          description: The title of the movie
+          description: The title of the movie.
         year:
           type: integer
-          description: The release year of the movie
+          description: The release year of the movie.
         genre:
           type: string
-          description: The genre(s) of the movie
+          description: The genre(s) of the movie.
         director:
           type: string
-          description: The director of the movie
+          description: The director of the movie.
         actors:
           type: string
-          description: The main actors in the movie
+          description: The main actors in the movie.
         plot:
           type: string
-          description: A brief summary of the movie's plot
+          description: A brief summary of the movie's plot.
         imdbRating:
           type: number
           format: float
-          description: The IMDb rating of the movie
+          description: The IMDb rating of the movie.
         runtimeMinutes:
           type: integer
-          description: The runtime of the movie in minutes
+          description: The runtime of the movie in minutes.
