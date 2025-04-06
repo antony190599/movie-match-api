@@ -14,6 +14,38 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the movie.
+        title:
+          type: string
+          description: The title of the movie.
+        year:
+          type: integer
+          description: The release year of the movie.
+        genre:
+          type: string
+          description: The genre(s) of the movie.
+        director:
+          type: string
+          description: The director of the movie.
+        actors:
+          type: string
+          description: The main actors in the movie.
+        plot:
+          type: string
+          description: A brief summary of the movie's plot.
+        imdbRating:
+          type: number
+          format: float
+          description: The IMDb rating of the movie.
+        runtimeMinutes:
+          type: integer
+          description: The runtime of the movie in minutes.
 security:
   - ApiKeyAuth: []
 paths:
@@ -125,36 +157,3 @@ paths:
                       $ref: '#/components/schemas/Movie'
         '404':
           description: Movie not found with the given ID or name.
-components:
-  schemas:
-    Movie:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the movie.
-        title:
-          type: string
-          description: The title of the movie.
-        year:
-          type: integer
-          description: The release year of the movie.
-        genre:
-          type: string
-          description: The genre(s) of the movie.
-        director:
-          type: string
-          description: The director of the movie.
-        actors:
-          type: string
-          description: The main actors in the movie.
-        plot:
-          type: string
-          description: A brief summary of the movie's plot.
-        imdbRating:
-          type: number
-          format: float
-          description: The IMDb rating of the movie.
-        runtimeMinutes:
-          type: integer
-          description: The runtime of the movie in minutes.
