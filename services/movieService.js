@@ -103,7 +103,7 @@ export async function getPaginatedMovies(cursor, limit = 10, filters = {}) {
   }
   
   // Get paginated results
-  const endIndex = startIndex + limit - 1;
+  const endIndex = startIndex + limit;
   const paginatedMovies = movies.slice(startIndex, endIndex);
   console.log(startIndex, endIndex, paginatedMovies.length);
   
